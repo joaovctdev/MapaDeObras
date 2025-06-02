@@ -1,0 +1,3397 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Mapa de Obras Norte Tech - Irecê</title>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f8f9fa;
+      }
+
+      /* Estilo para a logo fixa no canto superior esquerdo */
+      .fixed-top-left-logo {
+        position: absolute; /* Posição absoluta para fixar */
+        top: 10px; /* 10px do topo */
+        left: 10px; /* 10px da esquerda */
+        height: 60px; /* Altura da logo, ajuste conforme necessário */
+        width: auto;
+        border-radius: 4px;
+        z-index: 1002; /* Garante que fique acima de outros elementos */
+      }
+
+      .header {
+        background-color: #0f1e3f;
+        color: white;
+        padding: 15px 200px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        position: relative; /* Para garantir que o z-index funcione bem com outros elementos */
+        z-index: 1000; /* Abaixo da logo fixa */
+      }
+
+      .header-content {
+        flex: 1;
+      }
+
+      .header h1 {
+        margin: 0;
+        font-size: 24px;
+      }
+
+      .header p {
+        margin: 5px 0 0;
+        font-size: 14px;
+        opacity: 0.8;
+      }
+
+      /* O estilo .logo original não será mais usado para a logo principal */
+      .logo {
+        height: 40px; /* Mantido caso você tenha outras logos menores dentro do header */
+        width: auto;
+        border-radius: 4px;
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .controls {
+        flex: 1;
+        min-width: 350px;
+        max-width: 400px;
+        padding: 20px;
+        background: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        height: 100vh;
+        overflow-y: auto;
+        position: relative; /* Para garantir que o z-index funcione bem */
+        z-index: 1;
+      }
+
+      .map-container {
+        flex: 3;
+        min-width: 500px;
+        background-color: #0f1e3f;
+      }
+
+      .butaochato {
+        color: #0f1e3f;
+      }
+
+      #map {
+        height: 100vh;
+        width: 100%;
+      }
+
+      .section {
+        margin-bottom: 20px;
+        border-radius: 8px;
+        background: white;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        padding: 15px;
+        border-left: 4px solid #ecca29;
+      }
+
+      .section h3 {
+        margin-top: 0;
+        color: #0f1e3f;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 10px;
+      }
+
+      .filter-row {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 15px;
+      }
+
+      .filter-group {
+        flex: 1;
+      }
+
+      label {
+        display: block;
+        margin-bottom: 5px;
+        font-weight: 600;
+        color: #0f1e3f;
+        font-size: 14px;
+      }
+
+      select,
+      input {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        font-size: 14px;
+        background-color: #f8f9fa;
+      }
+
+      .button-group {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+      }
+
+      button {
+        padding: 10px 15px;
+        background: #0f1e3f;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background 0.3s;
+        flex: 1;
+      }
+
+      button:hover {
+        background: #ecca29;
+      }
+
+      button.secondary {
+        background: #ecca29;
+      }
+
+      button.secondary:hover {
+        background: #0f1e3f;
+      }
+
+      .info-panel {
+        background: #f8f9fa;
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        border-left: 4px solid #2ecc71;
+      }
+
+      .search-result-item {
+        padding: 10px;
+        margin: 5px 0;
+        background: #f8f9fa;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background 0.2s;
+        border-left: 3px solid #0f1e3f;
+      }
+
+      .search-result-item:hover {
+        background: #e9f7fe;
+      }
+
+      .marker-info {
+        max-width: 250px;
+      }
+
+      .marker-info h4 {
+        margin-top: 0;
+        color: #3498db;
+        font-size: 16px;
+      }
+
+      .marker-info p {
+        margin: 5px 0;
+        font-size: 14px;
+      }
+
+      .debug-info {
+        font-size: 12px;
+        color: #7f8c8d;
+        margin-top: 20px;
+        padding: 10px;
+        background: #f8f9fa;
+        border-radius: 4px;
+      }
+
+      /* Estilo para os controles do mapa */
+      .map-controls {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        padding: 5px;
+        border-radius: 4px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        z-index: 1000;
+        background-color: #0f1e3f;
+      }
+
+      /* Estilo para as estatísticas de postes */
+      .postes-stats {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 15px;
+      }
+
+      .postes-stat {
+        flex: 1;
+        padding: 10px;
+        text-align: center;
+        border-radius: 4px;
+        background-color: #f8f9fa;
+        margin: 0 5px;
+      }
+
+      .postes-stat h4 {
+        margin: 0 0 5px 0;
+        color: #0f1e3f;
+      }
+
+      .postes-stat p {
+        margin: 0;
+        font-size: 24px;
+        font-weight: bold;
+      }
+
+      .postes-previstos {
+        border-bottom: 3px solid #3498db;
+      }
+
+      .postes-implantados {
+        border-bottom: 3px solid #2ecc71;
+      }
+
+      @media (max-width: 900px) {
+        .container {
+          flex-direction: column;
+        }
+
+        .controls {
+          max-width: 100%;
+          height: auto;
+        }
+
+        #map {
+          height: 500px;
+        }
+
+        .postes-stats {
+          flex-direction: column;
+        }
+
+        .postes-stat {
+          margin: 5px 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <img
+      src="WhatsApp Image 2025-03-13 at 13.58.59.jpeg"
+      alt="Logo Norte Tech"
+      class="fixed-top-left-logo"
+    />
+
+    <div class="header">
+      <div class="header-content">
+        <h1>Obras Norte Tech - Irecê</h1>
+        <p>Mapa interativo de obras com filtros avançados</p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="controls">
+        <div class="section">
+          <h3>Pesquisar Obra</h3>
+          <div class="filter-group">
+            <input
+              type="text"
+              id="obraSearch"
+              placeholder="Digite o B da Obra ou título"
+            />
+          </div>
+          <div class="button-group">
+            <button id="searchObra">Pesquisar</button>
+            <button id="clearSearch" class="secondary">Limpar</button>
+          </div>
+          <div id="searchResults" style="margin-top: 10px"></div>
+        </div>
+
+        <div class="section">
+          <h3>Calcular Rota</h3>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label for="originObra">Origem (B da Obra)</label>
+              <input
+                type="text"
+                id="originObra"
+                placeholder="Digite o B da Obra"
+              />
+            </div>
+            <div class="filter-group">
+              <label for="destinationObra">Destino (B da Obra)</label>
+              <input
+                type="text"
+                id="destinationObra"
+                placeholder="Digite o B da Obra"
+              />
+            </div>
+          </div>
+          <div class="button-group">
+            <button id="calculateRoute">Calcular Rota</button>
+            <button id="clearRoute" class="secondary">Limpar Rota</button>
+          </div>
+          <div id="routeResult" style="margin-top: 10px"></div>
+        </div>
+
+        <div class="info-panel">
+          <h3>Obras Selecionadas</h3>
+          <div id="selectedPoints">Nenhuma obra selecionada</div>
+          <div id="distanceResult"></div>
+          <div id="loading" style="display: none">Calculando rota...</div>
+        </div>
+
+        <div class="section">
+          <h3>Filtros</h3>
+          <div class="filter-row">
+            <div class="filter-group">
+              <label for="municipioFilter">Município</label>
+              <select id="municipioFilter">
+                <option value="">Todos os municípios</option>
+              </select>
+            </div>
+            <div class="filter-group">
+              <label for="mesFilter">Mês</label>
+              <select id="mesFilter">
+                <option value="">Todos os meses</option>
+                <option value="Abril">Abril</option>
+                <option value="Maio">Maio</option>
+                <option value="Junho">Junho</option>
+              </select>
+            </div>
+          </div>
+          <div class="filter-group">
+            <label for="situacaoFilter">Situação</label>
+            <select id="situacaoFilter">
+              <option value="">Todas as situações</option>
+              <option value="ENERGIZADA">ENERGIZADA</option>
+              <option value="CANCELADA">CANCELADA</option>
+              <option value="PROVAVEL CANCELAMENTO">
+                PROVAVEL CANCELAMENTO
+              </option>
+              <option value="SAIU DA CARTEIRA">SAIU DA CARTEIRA</option>
+              <option value="OBRA RETIRADA DA CARTEIRA">
+                OBRA RETIRADA DA CARTEIRA
+              </option>
+            </select>
+          </div>
+          <div class="button-group">
+            <button id="applyFilter">Aplicar Filtros</button>
+            <button id="clearFilter" class="secondary">Limpar Filtros</button>
+          </div>
+
+          <!-- Adicionando as estatísticas de postes -->
+          <div class="postes-stats">
+            <div class="postes-stat postes-previstos">
+              <h4>Postes Previstos</h4>
+              <p id="total-previstos">0</p>
+            </div>
+            <div class="postes-stat postes-implantados">
+              <h4>Postes Implantados</h4>
+              <p id="total-implantados">0</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h3>Filtro por Raio</h3>
+          <div class="filter-group">
+            <label for="radiusDistance">Raio (km)</label>
+            <input type="number" id="radiusDistance" min="1" value="10" />
+          </div>
+          <div class="button-group">
+            <button id="applyRadius">Aplicar Raio</button>
+            <button id="clearRadius" class="secondary">Limpar Raio</button>
+          </div>
+          <div id="radiusInfo" style="display: none"></div>
+        </div>
+
+        <div class="debug-info" id="debugInfo">Carregando dados...</div>
+      </div>
+
+      <div class="map-container">
+        <div id="map"></div>
+        <div class="map-controls">
+          <button class="butaochato">Mapa</button>
+          <button class="butaochato">Satélite</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Scripts para o mapa (exemplo com Leaflet) -->
+    <script>
+      // Inicialização do mapa (exemplo)
+      document.addEventListener("DOMContentLoaded", function () {
+        // Aqui você colocaria o código para inicializar o mapa
+        console.log("Página carregada, pronto para inicializar o mapa");
+
+        // Exemplo de como você poderia manipular os controles do mapa
+        document
+          .getElementById("mapTypeSatellite")
+          .addEventListener("click", function () {
+            console.log("Alternar para visualização de satélite");
+            // Código para mudar o tipo de mapa para satélite
+          });
+
+        document
+          .getElementById("mapTypeRoad")
+          .addEventListener("click", function () {
+            console.log("Alternar para visualização de mapa");
+            // Código para mudar o tipo de mapa para padrão
+          });
+      });
+    </script>
+  </body>
+</html>
+
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAhfh4DPlxWxlN3r61PRXfcoQD8SHQ3iCs&libraries=geometry,directions"></script>
+<script>
+  // Variáveis globais
+  let map;
+  let markers = [];
+  let selectedMarkers = [];
+  let infoWindow;
+  let directionsService;
+  let directionsRenderer;
+  let radiusCircle = null;
+  let centerMarker = null;
+  let allMarkers = [];
+  let lastHighlightedMarker = null;
+
+  // Dados das obras (inclua seu JSON completo aqui)
+  const obrasJson = [
+    // Seu JSON completo aqui
+    // Exemplo:
+
+    {
+      "B DA OBRA": "846509",
+      LATITUDE: "-10,9485009",
+      LONGITUDE: "-42,3857773",
+      MUNICÍPIO: "ITAGUACU DA BAHIA",
+      TÍTULO: "MP-CCOL-POV LAGEDO DE JOÃO NOVO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 10,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "",
+    },
+    {
+      "B DA OBRA": "963189",
+      LATITUDE: "-11.4595182",
+      LONGITUDE: "-41.9616765",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "RR-CCOL-POV DO CIRCO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 11,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "1023271",
+      LATITUDE: "-11.2825736",
+      LONGITUDE: "-41.793345",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CCOL-POV-CACIMBA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 8,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "1100692",
+      LATITUDE: "-11.5617586",
+      LONGITUDE: "-42.0407204",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-POV-LAGOA DO ZE MENDES-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 9,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "1131450",
+      LATITUDE: "-11.8614066",
+      LONGITUDE: "-41.7411463",
+      MUNICÍPIO: "CANARANA",
+      TÍTULO: "ER-CIND-POV-LAGOA NOVA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 9,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "1136418",
+      LATITUDE: "-11.2297805",
+      LONGITUDE: "-41.8580402",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-RUA-S O PEDRO-SAO GABRIEL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 4,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1137006",
+      LATITUDE: "-11.460947",
+      LONGITUDE: "-41.9602644",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-POV-FAVELEIRA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 11,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "1137215",
+      LATITUDE: "-11.1669078",
+      LONGITUDE: "-41.8345397",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "RR-CIND-POV-GUARANI-S O GABRIEL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 8,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1138030",
+      LATITUDE: "-11.1247084",
+      LONGITUDE: "-41.7940252",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-RUA-AGRIPINO GONCALVES-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1140150",
+      LATITUDE: "-11.286788",
+      LONGITUDE: "-41.8801419",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CIND-FAZ-PROPRIA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "CANCELADA",
+      DATA: "Abril",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "1142597",
+      LATITUDE: "-11.6306543",
+      LONGITUDE: "-41.9962147",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "ER-CIND-POV-BOA ESPERANCA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "1146521",
+      LATITUDE: "-11.3334458",
+      LONGITUDE: "-41.7516105",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CIND-POV-LAGOA NOVA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 9,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "1148325",
+      LATITUDE: "-10.8821648",
+      LONGITUDE: "-41.6003831",
+      MUNICÍPIO: "SAO GABRIEL",
+      TÍTULO: "ER-CIND-POV-CURRALINHO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1148318",
+      LATITUDE: "-11.5239174",
+      LONGITUDE: "-41.818073",
+      MUNICÍPIO: "LAPAO",
+      TÍTULO: "ER-CIND-PR -LAGEDO EURIPEDES-L EURIPEDES",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "PROVAVEL CANCELAMENTO",
+      DATA: "Abril",
+      EQUIPE: "FELIPE ",
+    },
+    {
+      "B DA OBRA": "1148467",
+      LATITUDE: "-11.7183512",
+      LONGITUDE: "-42.1037189",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "RR-CIND-POV-LAGEDINHO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 7,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "1148976",
+      LATITUDE: "-11.4491571",
+      LONGITUDE: "-42.2620531",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "ER-CIND-POV-VELAME-RURAL VELAME",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "1148866",
+      LATITUDE: "-11.435364",
+      LONGITUDE: "-41.4567937",
+      MUNICÍPIO: "AMERICA DOURADA",
+      TÍTULO: "ER-CIND-ET-BA 52 -RURAL NOVA AMERICA",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 5,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "1149861",
+      LATITUDE: "-11.7482361",
+      LONGITUDE: "-41.9082696",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "RR-CIND-POV-DE MURIBECA 2024-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 20,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "1142920",
+      LATITUDE: "-11.3361749",
+      LONGITUDE: "-41.6360598",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "RR-CIND-FAZ-BOM FUTURO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 9,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "1150139",
+      LATITUDE: "-11.5203096",
+      LONGITUDE: "-41.7368201",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CIND-POV-BOA ESPERANCA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "1150771",
+      LATITUDE: "-11.6881044",
+      LONGITUDE: "-41.8623371",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-POV-FEIRA NOVA-CENTRO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "1150276",
+      LATITUDE: "-11.4624178",
+      LONGITUDE: "-42.2453384",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "ER-CIND-POV-VELAME-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 23,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "1151405",
+      LATITUDE: "-11.2558368",
+      LONGITUDE: "-41.823864",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CIND-POV-MOCOZEIRO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 12,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "1151690",
+      LATITUDE: "-11.3866464",
+      LONGITUDE: "-41.8820925",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CIND-POV-TANQUINHO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "FELIPE ",
+    },
+    {
+      "B DA OBRA": "1130898",
+      LATITUDE: "-11.5197814",
+      LONGITUDE: "-41.9670841",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "LD-CIND-ROD BA 052-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 7,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "1122395",
+      LATITUDE: "-11.3882563",
+      LONGITUDE: "-41.8451298",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CCOL-FAZ-RURAL-RURAL-LAPAO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 3,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "FELIPE ",
+    },
+    {
+      "B DA OBRA": "1153525",
+      LATITUDE: "-11.1556052",
+      LONGITUDE: "-41.8456824",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-POV-GUARANI-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1154384",
+      LATITUDE: "-11.1457328",
+      LONGITUDE: "-42.0182967",
+      MUNICÍPIO: "CENTRAL",
+      TÍTULO: "ER-CIND-POV-PALMEIRAS 2 S N-RUR PALMEIRS",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ENERGIZADA",
+    },
+    {
+      "B DA OBRA": "1155309",
+      LATITUDE: "-11.0771677",
+      LONGITUDE: "-41.6433634",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-POV-LAGOINHA-LAGOINHA",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "SAIU DA CARTEIRA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1155715",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "UIBAI",
+      TÍTULO: "ER-CIND-POV-MANDACARU 9000-RURAL UIBAI",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 7,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ENES",
+    },
+    {
+      "B DA OBRA": "1156086",
+      LATITUDE: "-11.44703",
+      LONGITUDE: "-41.9719811",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-RUA-DO ALVOREDO-CENTRO-CIRCO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "1157760",
+      LATITUDE: "-11.1989282",
+      LONGITUDE: "-41.8220201",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-POV-CORTA ASA 8-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1161008",
+      LATITUDE: "-11.4756806",
+      LONGITUDE: "-41.7417286",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CIND-FAZ-LAGEADO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 6,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ENES",
+    },
+    {
+      "B DA OBRA": "1161401",
+      LATITUDE: "-11.7381552",
+      LONGITUDE: "-41.7331707",
+      MUNICÍPIO: "CANARANA",
+      TÍTULO: "ER - CIND POV TIBURCIOS - RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 6,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "1161561",
+      LATITUDE: "-11.8689797",
+      LONGITUDE: "-41.6560237",
+      MUNICÍPIO: "CANARANA",
+      TÍTULO: "ER-CIND-RUA-LORMINO SOUZA SANTOS-CENTRO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 29,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "1161538",
+      LATITUDE: "-11.3484517",
+      LONGITUDE: "-41.6102391",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER-CIND-POV-DOCA 8564 S N-DOCA",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 11,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "1161494",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER-CIND-POV-BAIXA DAS CABACAS 2024-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "1162818",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "UIBAI",
+      TÍTULO: "ER-CIND-POV-ASSENT.IDA CARDOSO 342-POÇO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 13,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "FELIPE ",
+    },
+    {
+      "B DA OBRA": "1163422",
+      LATITUDE: "-11.2521493",
+      LONGITUDE: "-41.7555422",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER CIND PO ANGICAL 1 RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 3,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ENES",
+    },
+    {
+      "B DA OBRA": "1163413",
+      LATITUDE: "-11.3272967",
+      LONGITUDE: "-41.6601695",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER CIND POV FEITOSA 95864 RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 8,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "1164280",
+      LATITUDE: "-11.7488955",
+      LONGITUDE: "-41.9076055",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-POV-SANTANA 111-SANTANA",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 8,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "1165120",
+      LATITUDE: "-11.6487229",
+      LONGITUDE: "-42.0393205",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "ER-CIND-ET-LAGOA-LAGOA GRANDE",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 9,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "1166226",
+      LATITUDE: "-11.2414048",
+      LONGITUDE: "-41.7593831",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CIND-RUA-IRECE-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "1155649",
+      LATITUDE: "-11.3389423",
+      LONGITUDE: "-41.6630892",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER-CIND-ROD-BA-052-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "1172718",
+      LATITUDE: "-11.2636986",
+      LONGITUDE: "-41.8281432",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CIND-POV-MOCOZEIRO 1242-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 5,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "1173032",
+      LATITUDE: "-11.0889277",
+      LONGITUDE: "-41.9980812",
+      MUNICÍPIO: "JUSSARA",
+      TÍTULO: "ER-CIND-POV-LARGO DA TAPIOCA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 5,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1187585",
+      LATITUDE: "-11.572051",
+      LONGITUDE: "-41.945638",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-RUA-LOTARIO C VIANA-PEDRA LISA",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "1068560",
+      LATITUDE: "-11.3578143",
+      LONGITUDE: "-41.9348491",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CCOL-POV-QUEIMADA NOVA -CENTRO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 4,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "767852",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "LD-CIND-RUA DA PEDRA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "OBRA RETIRADA DA CARTEIRA RETIRADA DA CARTEIRA",
+      DATA: "Abril",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "1137508",
+      LATITUDE: "-11.9330169",
+      LONGITUDE: "-41.6040515",
+      MUNICÍPIO: "MULUNGU DO MORRO",
+      TÍTULO: "ER-CIND-POV-LAGOA DOS PATOS-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 4,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "1152003",
+      LATITUDE: "-11.0524852",
+      LONGITUDE: "-42.0728039",
+      MUNICÍPIO: "CENTRAL",
+      TÍTULO: "ER-CIND-POV-CAPOEIRA DA SERRA -RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "CANCELAR",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1166611",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "PRESIDENTE DUTRA",
+      TÍTULO: "LD-CIND-POV.MATINHA DE BRITO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "FELIPE ",
+    },
+    {
+      "B DA OBRA": "1156573",
+      LATITUDE: "-11.1050839",
+      LONGITUDE: "-41.4373488",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER-CIND-FAZ-ALGODAO 9999 --Z-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "1157994",
+      LATITUDE: "-11.3532345",
+      LONGITUDE: "-41.6053453",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER-CIND-AV-DIVINO ESPIRITO SANTO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "1158305",
+      LATITUDE: "-11.9654057",
+      LONGITUDE: "-41.6392354",
+      MUNICÍPIO: "MULUNGU DO MORRO",
+      TÍTULO: "ER-CIND-RUA-07 DE SETEMBRO-CENTRO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "SAIU DA CARTEIRA",
+      DATA: "Abril",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "1158233",
+      LATITUDE: "-11.9461514",
+      LONGITUDE: "-40.9899724",
+      MUNICÍPIO: "MORRO DO CHAPÉU",
+      TÍTULO: "ER-CIND-FAZ-DESCOBERTA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "OBRA DERIVA DE OBRA NÃO ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "1160114",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-POV-CORTA ASA 9-CORTA ASA",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "1153453",
+      LATITUDE: "-11.9276662",
+      LONGITUDE: "-41.7475879",
+      MUNICÍPIO: "BARRO ALTO",
+      TÍTULO: "ER-CIND-POV-PAU DE COLHER-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 5,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "1163907",
+      LATITUDE: "-11.0887245",
+      LONGITUDE: "-42.0017489",
+      MUNICÍPIO: "JUSSARA",
+      TÍTULO: "ER CIND RUA JOSE BERNARDES RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Abril",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1177267",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-RUA-PRINCIPAL-LAGOA DO ESTEVAO",
+      "POSTE PREVISTO": 10,
+      "POSTE INSTALADOS": 10,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1127775",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CCOL-POV-LAGOINHA S N-LAGOINHA",
+      "POSTE PREVISTO": 25,
+      "POSTE INSTALADOS": 3,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1081768",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP CIND POV SAPECADO RURAL",
+      "POSTE PREVISTO": 33,
+      "POSTE INSTALADOS": 10,
+      SITUAÇÃO:
+        "EXECUTAR EM CONJUNTO COM B-1105344 - CAVAS EM ROCHA COM ROMPEDOR",
+      DATA: "Maio",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1133855 ",
+      LATITUDE: "",
+      LONGITUDE: "0",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ME-RECOND-BT-ADD-01W3-W74362",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Maio",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1105344 ",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "AMÉRICA DOURADA",
+      TÍTULO: "MP-CCOL-FAZ.JUAZEIRO-RURAL",
+      "POSTE PREVISTO": 45,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "PROGRAMAR RETRO - 742m 1X25(25)mm² - PROJETO COM DUAS SANGRIAS PARA LV",
+      DATA: "Maio",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "B-1194516 ",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "ER-SEIN-FAZ-SANTOS-RURAL",
+      "POSTE PREVISTO": 6,
+      "POSTE INSTALADOS": 6,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "VANILSON",
+    },
+    {
+      "B DA OBRA": "B-1194367",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "BARRA DO MENDES",
+      TÍTULO: "ER-CIND-POV-LAGOINHA-LAGOINHA",
+      "POSTE PREVISTO": 7,
+      "POSTE INSTALADOS": 7,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1197030",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "LD CIND POV MUNDO NOVO RURAL",
+      "POSTE PREVISTO": 15,
+      "POSTE INSTALADOS": 15,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1191957",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-POV-UMBUZEIRAO-RURAL",
+      "POSTE PREVISTO": 33,
+      "POSTE INSTALADOS": 36,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": "B-1105830 ",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-ANGICAO-RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "B-1178119",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "JUSSARA",
+      TÍTULO: "MP CIND POV. ANGICO RURAL",
+      "POSTE PREVISTO": 9,
+      "POSTE INSTALADOS": 8,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "B-1164835 ",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "PRESIDENTE DUTRA",
+      TÍTULO: "ER-CIND-POV CAMPO FORMOSO",
+      "POSTE PREVISTO": 6,
+      "POSTE INSTALADOS": 6,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "GIORLAN",
+    },
+    {
+      "B DA OBRA": "B-1050817",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "CANARANA",
+      TÍTULO: "AC-CIND-POV-TIBURCIO-RURAL",
+      "POSTE PREVISTO": 3,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1161555",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "CANARANA",
+      TÍTULO: "AC-CIND-POV-BARRO VERMELHO 330-RURAL",
+      "POSTE PREVISTO": 14,
+      "POSTE INSTALADOS": 14,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1169916",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-CURRALINHO-RURAL",
+      "POSTE PREVISTO": 1,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1146930",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-AV-DIVINO ESPIRITO SANTO-RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 2,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1148325",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-BAIXA DAS CABACAS 2024-RURAL",
+      "POSTE PREVISTO": 7,
+      "POSTE INSTALADOS": 7,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1157994",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER CIND RUA JOSE BERNARDES RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 2,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1161494",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-RUA-AGRIPINO GONCALVES-RURAL",
+      "POSTE PREVISTO": 1,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1163907",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "RR-CIND-POV-BAIBAO DOS HONORATOS-RURAL",
+      "POSTE PREVISTO": 14,
+      "POSTE INSTALADOS": 12,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1138030",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-PO-BAIXA DO VIGARIO-B DO VIGARIO",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1157228",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-FEIRA NOVA-CENTRO",
+      "POSTE PREVISTO": 1,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": "B-1164031",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-LAGOA VELHA-RURAL",
+      "POSTE PREVISTO": 9,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1150771",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-TORNEADO-RURAL",
+      "POSTE PREVISTO": 1,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1155107",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "ER-CIND-RUA-ALFREDO SEVERINO-CENTRO",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 5,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1170539",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "MULUNGU DO MORRO",
+      TÍTULO: "ER-CIND-SITIO JUNCO 11-ROSEDO",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1029402",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP-CIND-POV-BOA VISTA-RURAL",
+      "POSTE PREVISTO": 20,
+      "POSTE INSTALADOS": 20,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": " B-1031842",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP-CIND-POV-BARREIRO-RURAL",
+      "POSTE PREVISTO": 38,
+      "POSTE INSTALADOS": 38,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1044496",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-FAZ-COCAO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1091700",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-FAZ-NOVA-RURAL",
+      "POSTE PREVISTO": 1,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1166737",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP-CCOL-POV. CAPOEIRA DA SERRA-RURAL",
+      "POSTE PREVISTO": 14,
+      "POSTE INSTALADOS": 14,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1173063 ",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-FAZ-BELISSIMA 3-RURAL-RIO VERDE",
+      "POSTE PREVISTO": 7,
+      "POSTE INSTALADOS": 7,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "GIORLAN",
+    },
+    {
+      "B DA OBRA": "B-1050606",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-FAZ-LAGEADO-RURAL",
+      "POSTE PREVISTO": 7,
+      "POSTE INSTALADOS": 1,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ENES",
+    },
+    {
+      "B DA OBRA": "B-1160138",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-CANOAO-RURAL",
+      "POSTE PREVISTO": 13,
+      "POSTE INSTALADOS": 13,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "B-1161008",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-RUA-IRECE-RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 2,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "B-1157336",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP-CCOL-POV DE ANGICAL-RURAL",
+      "POSTE PREVISTO": 44,
+      "POSTE INSTALADOS": 44,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ENES",
+    },
+    {
+      "B DA OBRA": "B-1166226",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP-CCOL-POV RIACHO-RURAL",
+      "POSTE PREVISTO": 21,
+      "POSTE INSTALADOS": 13,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1065543",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER-CIND-ET JOAO D DESCOBERTA-RURAL",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "VANILSON",
+    },
+    {
+      "B DA OBRA": "B-0608770",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-SI-ALTO ALEGRE-RURAL",
+      "POSTE PREVISTO": 7,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1172130 ",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-DESCOBERTA DOS LOIOLAS-RURAL",
+      "POSTE PREVISTO": 15,
+      "POSTE INSTALADOS": 15,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "B-1165121 ",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "AC-CIND-POV- BARRO DURO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": "B-1156833",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-ET-LAGOA GRANDE-RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 2,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": "B-1196012",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-LAGOA DO CEDRO-RURAL",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 5,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1165849",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-RUA-BENJAMIN ALVES ALMEIDA-CENT",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 2,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1173612",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-TANQUE-TANQUE NOVO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1172803",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-RUA-MURIBECA 16-RURAL",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 5,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1196031",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-CEARENSE-RURAL-IBITITA ",
+      "POSTE PREVISTO": 3,
+      "POSTE INSTALADOS": 3,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": "B-1194595",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-MIGUEL DE NINA-RURAL",
+      "POSTE PREVISTO": 22,
+      "POSTE INSTALADOS": 16,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "B-1142894",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-FAZ-NOVA 9582-RURAL",
+      "POSTE PREVISTO": 19,
+      "POSTE INSTALADOS": 9,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1179433",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "LD-CIND-POV.MATINHA DE BRITO-RURAL",
+      "POSTE PREVISTO": 4,
+      "POSTE INSTALADOS": 5,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1166611",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "AC-CIND-FAZ-MATINHA-RURAL-GABRIELZINHO",
+      "POSTE PREVISTO": 8,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "GIORLAN",
+    },
+    {
+      "B DA OBRA": "B-1085149 ",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "RR-CCOL-POV-BAIBAO DO PRETO-RURAL",
+      "POSTE PREVISTO": 4,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "ENERGIZADA",
+      DATA: "Maio",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "B-1107955",
+      LATITUDE: "",
+      LONGITUDE: "",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Maio",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1103612",
+      LATITUDE: "-11.403916",
+      LONGITUDE: "-41.600131",
+      MUNICÍPIO: "AMÉRICA DOURADA",
+      TÍTULO: "LD-CIND-POV IPANEMA-RURAL",
+      "POSTE PREVISTO": 9,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "N3 PARA N4 NO PGXXXXX 11/600 - REDE 2X4 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1198078",
+      LATITUDE: "-11.891513",
+      LONGITUDE: "-42.084649",
+      MUNICÍPIO: "BARRA DO MENDES",
+      TÍTULO: "ER-CIND-POV LAGOA DO QUEIMADAO-RURAL",
+      "POSTE PREVISTO": 3,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1026207",
+      LATITUDE: "-11.629413",
+      LONGITUDE: "-41.557312",
+      MUNICÍPIO: "CAFARNAUM",
+      TÍTULO: "ER-CIND-POV DA BANDEIRA-BANDEIRA",
+      "POSTE PREVISTO": 4,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "INTERCALAR DT 11/600 N1-T TR 30KvA - REDE 3X04 13.8Kv- CAVA EM SOLO ROCHOSO",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1097886",
+      LATITUDE: "-11.798454",
+      LONGITUDE: "-41.511819",
+      MUNICÍPIO: "CAFARNAUM",
+      TÍTULO: "ER-CCOL-POV-CONQUISTA 3333-RURAL",
+      "POSTE PREVISTO": 17,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "N3 PARA N4 NO PG Q115873 11/400 - REDE 2X4 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1188362",
+      LATITUDE: "-11.665602",
+      LONGITUDE: "-41.511819",
+      MUNICÍPIO: "CAFARNAUM",
+      TÍTULO: "ER-CIND-POV-UMBUZEIRO-CIGANA",
+      "POSTE PREVISTO": 1,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "INTERCALAR POSTE 12/600 N1-T TR 2F 10KvA - REDE 2X4 13,8Kv - CAVA EM SOLO ROCHOSO",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1164949",
+      LATITUDE: "-117.907104",
+      LONGITUDE: "-41.639381",
+      MUNICÍPIO: "CANARANA",
+      TÍTULO: "ER-CIND-POV-RURAL-LAGOA CLARA",
+      "POSTE PREVISTO": 9,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "N3 PARA N4 NO PG B331964 EXISTENTE 11/600  - REDE2X4 34,5Kv",
+      DATA: "Junho",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1164537",
+      LATITUDE: "-118.347671",
+      LONGITUDE: "-416.990248",
+      MUNICÍPIO: "CANARANA",
+      TÍTULO: "RR-CIND-POV-BAIXA DE ZE DE ANINHA-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "ADIÇÃO DE FASE APARTI DO PG P356363 11/600 N1-3 -  REDE 3X4 34,5Kv - ",
+      DATA: "Junho",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1197899",
+      LATITUDE: "-11.126537",
+      LONGITUDE: "-42.176485",
+      MUNICÍPIO: "CENTRAL",
+      TÍTULO: "ER-CIND-FAZ-PARAISO-RURAL",
+      "POSTE PREVISTO": 3,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 12/600 N1-T TR 2F 10KvA - REDE 2X04 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1197041",
+      LATITUDE: "-11.194484",
+      LONGITUDE: "-41.982062",
+      MUNICÍPIO: "CENTRAL",
+      TÍTULO: "ER-CIND-POV-NOVA VISTA 2359-RURAL",
+      "POSTE PREVISTO": 11,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "N3 NO PG EXISTENTE 11/600 E315406 - REDE 3X4 13,8Kv - PROGRAMAR ATUAÇÃO COM RETRO ROMPEDOR",
+      DATA: "Junho",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1042703",
+      LATITUDE: "-11.673062",
+      LONGITUDE: "-42.167359",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "RR-CIND-POV-RECIFE-RURAL IBIPEBA",
+      "POSTE PREVISTO": 13,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "N3 PARA N4 NO PG Q115873 11/400 - REDE 2X4 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1135296",
+      LATITUDE: "-11.638879",
+      LONGITUDE: "-42.030836",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "ER-CIND-ET LAGOA GRANDE-RURAL",
+      "POSTE PREVISTO": 1,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 11/600 N1 - REDE 3X4 13.8Kv",
+      DATA: "Junho",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1179700",
+      LATITUDE: "-11.414653",
+      LONGITUDE: "-41.961623",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-RUA-DA ESPERANCA 10-MATO VERDE",
+      "POSTE PREVISTO": 21,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "N3 PARA N4 NO PG Q194087 11/400 - REDE 2X4 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1065289",
+      LATITUDE: "-11.596477",
+      LONGITUDE: "-41.986160",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "MP-CCOL-POV.UMBUZEIRO-RURAL",
+      "POSTE PREVISTO": 9,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 11/600 N1-3 - REDE 3X4 13.8Kv",
+      DATA: "Junho",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1136834",
+      LATITUDE: "-11.629481",
+      LONGITUDE: "-41.848671",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "RR-CIND-FAZ-MATA FRIA-LAGOA",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "TR 30KvA EM POSTE EXISTENTE 11/400 N1 PG B792146 - 3X4 13,8KV",
+      DATA: "Junho",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": "B-1027807",
+      LATITUDE: "-11.310393",
+      LONGITUDE: "-41.733379",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CCOL-POV-LAGOA NOVA-RURAL-LAGOA NOVA",
+      "POSTE PREVISTO": 4,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR 3 POSTE COM LV - REDE 3X04 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "GIORLAN",
+    },
+    {
+      "B DA OBRA": "B-1198417",
+      LATITUDE: "-10.930922",
+      LONGITUDE: "-42.351122",
+      MUNICÍPIO: "ITAGUAÇU DA BAHIA",
+      TÍTULO: "ER-CIND-FAZ-FELICIDADE-RIO VERDE",
+      "POSTE PREVISTO": 3,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE DE BAIXA TENSÃO",
+      DATA: "Junho",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1095910",
+      LATITUDE: "-11.334521",
+      LONGITUDE: "-41.601855",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "MP CIND POV LAGEDÃO DO PATRICIO RURAL",
+      "POSTE PREVISTO": 16,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "N3 PARA N4 NO PG Q125706 11/400 - REDE 2X4 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "EDILSON",
+    },
+    {
+      "B DA OBRA": "B-1156953",
+      LATITUDE: "-11.406281",
+      LONGITUDE: "-41.663887",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "MP - CIND - ET - GAMELEIRA - RURAL",
+      "POSTE PREVISTO": 67,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 12/600 B4-3 - REDE 2X4 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1041817",
+      LATITUDE: "-11.186665",
+      LONGITUDE: "-41.644744",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER-CIND-POV-DESCOBERTA DOS LOIOLAS-RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 16,
+      SITUAÇÃO: "INTERCALAR POSTE 12/600 N1-T TR 2F 10KvA - REDE 2X04 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": "B-1032658",
+      LATITUDE: "-10.945420",
+      LONGITUDE: "-41.875670",
+      MUNICÍPIO: "JUSSARA",
+      TÍTULO: "MP-CCOL-POV.RECIFE PRETO-RURAL",
+      "POSTE PREVISTO": 9,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "",
+      DATA: "Junho",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1187414",
+      LATITUDE: "-11.426983",
+      LONGITUDE: "-41.771328",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CIND-PR -BOM PRAZER-RURAL-BOM PRAZER",
+      "POSTE PREVISTO": 6,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "N3 NO PG EXISTENTE 12/400  Q187230 - REDE 3X4 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1198022",
+      LATITUDE: "-11.527054",
+      LONGITUDE: "-41.791318",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CIND-RUA-DO ANGICO-CENTRO - LAGEDO",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "BT - OBRA INCIADA NO MÊS DE MAIO",
+      DATA: "Junho",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1198585",
+      LATITUDE: "-11.392385",
+      LONGITUDE: "-41.874730",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CIND-POV-TANQUINHO-RURAL",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1102710",
+      LATITUDE: "-11.446746",
+      LONGITUDE: "-41.380442",
+      MUNICÍPIO: "MORRO DO CHAPÉU",
+      TÍTULO: "ER-CIND-POV-SAO RAFAEL-RURAL",
+      "POSTE PREVISTO": 20,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "SUBSTITUIR POSTE 11/600 N3-3 POR 11/1000 N4-3 - OBRA ESPRANDO VALIDAÇÃO DE OBRA PELA COELBA",
+      DATA: "Junho",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1198226",
+      LATITUDE: "-11.584466",
+      LONGITUDE: "-41.192415",
+      MUNICÍPIO: "MORRO DO CHAPÉU",
+      TÍTULO: "ER-CIND-FAZ-MORRAO -RURAL",
+      "POSTE PREVISTO": 8,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 12/600 N1-T TR 2F 10KvA - REDE 2X4 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1179840",
+      LATITUDE: "-11.464309",
+      LONGITUDE: "-41.054742",
+      MUNICÍPIO: "MORRO DO CHAPÉU",
+      TÍTULO: "ER-CIND-POV-VALE DO AGRESTE-ANGELIM",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "ENES",
+    },
+    {
+      "B DA OBRA": "B-1197024",
+      LATITUDE: "-11.216423",
+      LONGITUDE: "-41.892941",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-POV-NOVA BRASILIA-RURAL",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "ENES",
+    },
+    {
+      "B DA OBRA": "B-1198591",
+      LATITUDE: "-11.188897",
+      LONGITUDE: "-41.916097",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-POV-LAGOA NOVA-RURAL",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 9,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1082368",
+      LATITUDE: "-11.550916",
+      LONGITUDE: "-43.260944",
+      MUNICÍPIO: "XIQUE-XIQUE",
+      TÍTULO: "LD CIND FZ ESTRADA RETIRO RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "GIORLAN",
+    },
+    {
+      "B DA OBRA": "B-1110670",
+      LATITUDE: "-10.923140",
+      LONGITUDE: "-42.799532",
+      MUNICÍPIO: "XIQUE-XIQUE",
+      TÍTULO: "ER-CIND-POV-MATA BOI-RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "INTERCALAR POSTE 12/600 N1-T TR 2F 10KvA 13,8Kv - TERMINO DEVIDO A PROGRAMAÇÃO DE LV",
+      DATA: "Junho",
+      EQUIPE: "GABRIEL",
+    },
+    {
+      "B DA OBRA": "B-1191024",
+      LATITUDE: "-10.607151",
+      LONGITUDE: "-42.336550",
+      MUNICÍPIO: "XIQUE-XIQUE",
+      TÍTULO: "RR-GRUA-RUA-PROJ IRRIG-B D IRECE-SETOR 3",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "N3 NO PG EXISTENTE 12/400  D315049 - REDE 3X4/0 34,5Kv AL DUPLO",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1019460",
+      LATITUDE: "-11.63886",
+      LONGITUDE: "-41.94670",
+      MUNICÍPIO: "IBIPEBA",
+      TÍTULO: "AC-CCOL-POV-LAGOA DO CEDRO-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1109355",
+      LATITUDE: "-112.844359",
+      LONGITUDE: "-419.786789",
+      MUNICÍPIO: "PRESIDENTE DUTRA",
+      TÍTULO: "ER-CCOL-POV-BAIXA VERDE-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1177799",
+      LATITUDE: "-11.546320",
+      LONGITUDE: "-41.840915",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-POV-ALFREDO REDONDO-CENTRO",
+      "POSTE PREVISTO": 4,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "N3 NO EXISTENTE 11/600 PG Q145604 - INSTALAR POSTE 12/600 N1-T TR 30KvA - REDE 3X4 - 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1177881",
+      LATITUDE: "-11.559039",
+      LONGITUDE: "-42.010641",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-POV-GUANABARA-RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1178091",
+      LATITUDE: "-11.232567",
+      LONGITUDE: "-41.760655",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CIND-POV-DE ANGELICAL-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1191687",
+      LATITUDE: "-11.274975",
+      LONGITUDE: "-42.150563",
+      MUNICÍPIO: "UIBAÍ",
+      TÍTULO: "ER-CIND-POV-SOBREIRA-RURAL-HIDROLANDIA",
+      "POSTE PREVISTO": 7,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1191942",
+      LATITUDE: "-11.254267",
+      LONGITUDE: "-41.759022",
+      MUNICÍPIO: "IRECÊ",
+      TÍTULO: "ER-CIND-POV-DE ANGICAL-RURAL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "EDIMILSON",
+    },
+    {
+      "B DA OBRA": "B-1191992",
+      LATITUDE: "-11.593895",
+      LONGITUDE: "-41.904003",
+      MUNICÍPIO: "IBITITÁ",
+      TÍTULO: "ER-CIND-RUA-DA BARRIGUDA 51-CENTRO",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "WILIAN SILVA",
+    },
+    {
+      "B DA OBRA": "B-1195194",
+      LATITUDE: "-114.027433",
+      LONGITUDE: "-4.162.646004",
+      MUNICÍPIO: "JOÃO DOURADO",
+      TÍTULO: "ER-CIND-POV-SABINO 85694-RURAL",
+      "POSTE PREVISTO": 12,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "INTERCALAR 2 POSTE SENDO 1, 12/600 N1-T TR 10KvA E OUTRO 11/600 N1 - REDE 3X04 - 13.8Kv - VANILSON IRA INICIAR AS CAVAS",
+      DATA: "Junho",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1196112",
+      LATITUDE: "-11.471048",
+      LONGITUDE: "-41.498186",
+      MUNICÍPIO: "AMÉRICA DOURADA",
+      TÍTULO: "ER-CIND-POV-PREVINIDO-RURAL",
+      "POSTE PREVISTO": 10,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "INTERCALAR POSTE ENTRE OS PG B628141 E B628142, DE 12/600 N1-T TR 10KvA - REDE 2X4 - 13.8Kv.",
+      DATA: "Junho",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1196326",
+      LATITUDE: "-11.273601",
+      LONGITUDE: "-41.016055",
+      MUNICÍPIO: "MORRO DO CHAPÉU",
+      TÍTULO: "ER-CIND-RUA-DO MORRO-RURAL",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 11/600 N1 ",
+      DATA: "Junho",
+      EQUIPE: "ENES",
+    },
+    {
+      "B DA OBRA": "B-1196370",
+      LATITUDE: "-11.016332",
+      LONGITUDE: "-41.977612",
+      MUNICÍPIO: "JUSSARA",
+      TÍTULO: "ER-CIND-POV-ANGICO-ANGICO",
+      "POSTE PREVISTO": 4,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1196408",
+      LATITUDE: "-11.477234",
+      LONGITUDE: "-41.514444",
+      MUNICÍPIO: "AMÉRICA DOURADA",
+      TÍTULO: "ER-CIND-RUA-OSORIO A MARQUES-PREVINIDO",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "BT - AJUSTAR DATA DE INICO",
+      DATA: "Junho",
+      EQUIPE: "IRISMAR",
+    },
+    {
+      "B DA OBRA": "B-1196937",
+      LATITUDE: "-11.231679",
+      LONGITUDE: "-41.814003",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-POV-CORTA ASA 4-CORTA ASA",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "INTERCALAR POSTE 11/600 N1 - REDE 2X4 13.8Kv - OBRA SEM ACESSO NA VISITA",
+      DATA: "Junho",
+      EQUIPE: "ALEX SANDRO",
+    },
+    {
+      "B DA OBRA": "B-1196980",
+      LATITUDE: "-11.468349",
+      LONGITUDE: "-41.058163",
+      MUNICÍPIO: "MORRO DO CHAPÉU",
+      TÍTULO: "ER-CIND-POV VALE DO AGRESTE-GROTA",
+      "POSTE PREVISTO": 3,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "EXTENÇÃO DE REDE BAIXA TENSÃO ",
+      DATA: "Junho",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1197023",
+      LATITUDE: "-11.908783",
+      LONGITUDE: "-41.748130",
+      MUNICÍPIO: "BARRO ALTO",
+      TÍTULO: "ER-CIND-POV-TIRIRICA-RURAL",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "NECESSITA RETRO PARA REALIZAR AS CAVAS",
+      DATA: "Junho",
+      EQUIPE: "JARBAS",
+    },
+    {
+      "B DA OBRA": "B-1197077",
+      LATITUDE: "-11.92320841",
+      LONGITUDE: "-41.59439678",
+      MUNICÍPIO: "MULUNGU DO MORRO",
+      TÍTULO: "ER-CIND-POV-CAPIM ACU-QUEIMADA DA ONCA",
+      "POSTE PREVISTO": 5,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 12/600 N1-T TR 10KvA 2F - REDE 2X4 - 34,5Kv",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1197088",
+      LATITUDE: "-11.187424",
+      LONGITUDE: "-41.831245",
+      MUNICÍPIO: "SÃO GABRIEL",
+      TÍTULO: "ER-CIND-POV-VARIANTE-S O GABRIEL",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1197098",
+      LATITUDE: "-11.397652",
+      LONGITUDE: "-41.836112",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CIND-RUA-SAO JORGE -URBANO",
+      "POSTE PREVISTO": 2,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "EXTENÇÃO DE REDE BAIXA TENSÃO - NECESSITA RETRO PARA REALIZAR AS CAVAS",
+      DATA: "Junho",
+      EQUIPE: "FELIPE",
+    },
+    {
+      "B DA OBRA": "B-1197167",
+      LATITUDE: "-110.651936",
+      LONGITUDE: "-421.387164",
+      MUNICÍPIO: "CENTRAL",
+      TÍTULO: "ER-CIND-POV-MAXIXE-RURAL",
+      "POSTE PREVISTO": 7,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 11/400 N1 - REDE 2X4 13,8KV",
+      DATA: "Junho",
+      EQUIPE: "JAILSON",
+    },
+    {
+      "B DA OBRA": "B-1197892",
+      LATITUDE: "-115.272276",
+      LONGITUDE: "-417.394598",
+      MUNICÍPIO: "LAPÃO",
+      TÍTULO: "ER-CIND-POV-BOA ESPERAN A-BOA ESPERAN A",
+      "POSTE PREVISTO": 3,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "INTERCALAR POSTE 12/600 N1-T TR 30KvA 3F - REDE 3X4 - 13,8Kv",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1153443",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-RUA-BENJAMIN ALVES ALMEIDA-CENT",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "GIORLAN",
+    },
+    {
+      "B DA OBRA": "B-0729535",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP CIND POV CAPÃO DO SACO RURAL",
+      "POSTE PREVISTO": 11,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "N3 PARA N4 NO PG EXISTENTE D039367 12/600 - EM REDE 2X04 13.8kV - NÃO PROGRAMAR AGUARDANDO ANALISE",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "B-1043657",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "ER-CIND-POV-BAIXA DO MOCO-BAIXA DO MOCO",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "GIORLAN",
+    },
+    {
+      "B DA OBRA": "B-1078604",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "LD CIND POV XIQUE XIQUE RURAL",
+      "POSTE PREVISTO": 11,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "INTERVALAR POSTE 11/600 N1-N3 EM REDE 3X04 34.5kV -TERMINO DEVIDO A PROGRAMAÇÃO DE LV",
+      DATA: "Junho",
+      EQUIPE: "GIORLAN",
+    },
+    {
+      "B DA OBRA": "B-1102649",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP CIND ROD BA-052 RURAL",
+      "POSTE PREVISTO": 8,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO:
+        "INTERVALAR POSTE 11/600 N1-N3 EM REDE 3X04 34.5kV - TERMINO DEVIDO A PROGRAMAÇÃO DE LV",
+      DATA: "Junho",
+      EQUIPE: "ESMERALDO",
+    },
+    {
+      "B DA OBRA": "B-1076927",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "MP-CCOL-POV DE ALTO GRANDE-RURAL",
+      "POSTE PREVISTO": 94,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "OBRA COM ADIÇÃO DE FASE COM CERCA DE 5KM",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+    {
+      "B DA OBRA": "",
+      LATITUDE: "0",
+      LONGITUDE: "0",
+      MUNICÍPIO: "S/M",
+      TÍTULO: "",
+      "POSTE PREVISTO": 0,
+      "POSTE INSTALADOS": 0,
+      SITUAÇÃO: "S/S",
+      DATA: "Junho",
+      EQUIPE: "Não Encontrado",
+    },
+
+    // ... (mantenha todo o resto do seu JSON aqui)
+  ];
+
+  // Inicializa o mapa quando a API carregar
+  function initMap() {
+    // Configuração inicial do mapa
+    map = new google.maps.Map(document.getElementById("map"), {
+      center: { lat: -11.5, lng: -41.8 },
+      zoom: 8,
+      gestureHandling: "cooperative", // Desativa zoom com Ctrl+scroll
+      scrollwheel: true, // Permite zoom com scroll apenas no mapa
+    });
+
+    // Inicializa serviços do Google Maps
+    infoWindow = new google.maps.InfoWindow();
+    directionsService = new google.maps.DirectionsService();
+    directionsRenderer = new google.maps.DirectionsRenderer({
+      suppressMarkers: true,
+      preserveViewport: true,
+    });
+    directionsRenderer.setMap(map);
+
+    // Processa os dados e exibe no mapa
+    processDataAndDisplay();
+
+    // Configura eventos
+    setupEventListeners();
+
+    // Atualiza informações de debug
+    updateDebugInfo();
+  }
+
+  function processDataAndDisplay() {
+    try {
+      // Limpa marcadores existentes
+      clearAllMarkers();
+
+      // Filtra e processa os dados
+      const obrasValidas = obrasJson.filter((obra) => {
+        try {
+          // Converte coordenadas para número (tratando vírgula como separador decimal)
+          const latStr = obra.LATITUDE.toString().trim().replace(",", ".");
+          const lngStr = obra.LONGITUDE.toString().trim().replace(",", ".");
+
+          const lat = parseFloat(latStr);
+          const lng = parseFloat(lngStr);
+
+          // Verifica se as coordenadas são válidas e não zeradas
+          return !isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0;
+        } catch (e) {
+          console.warn("Erro ao processar obra:", obra["B DA OBRA"], e);
+          return false;
+        }
+      });
+
+      // Atualiza debug
+      document.getElementById("debugInfo").innerHTML = `
+                    Total de obras no JSON: ${obrasJson.length}<br>
+                    Obras com coordenadas válidas: ${obrasValidas.length}
+                `;
+
+      // Preenche filtros
+      populateFilters(obrasValidas);
+
+      // Adiciona marcadores ao mapa
+      addMarkersToMap(obrasValidas);
+
+      // Atualiza os totais de postes
+      updatePostesTotals(obrasValidas);
+    } catch (error) {
+      console.error("Erro ao processar dados:", error);
+      document.getElementById("debugInfo").innerHTML = `
+                    Erro ao processar dados: ${error.message}
+                `;
+    }
+  }
+
+  function updatePostesTotals(obras) {
+    let totalPrevistos = 0;
+    let totalImplantados = 0;
+
+    obras.forEach((obra) => {
+      totalPrevistos += parseFloat(obra["POSTE PREVISTO"] || 0);
+      totalImplantados += parseFloat(obra["POSTE INSTALADOS"] || 0);
+    });
+
+    // Atualiza os totais de postes
+    document.getElementById("total-previstos").textContent = totalPrevistos;
+    document.getElementById("total-implantados").textContent = totalImplantados;
+  }
+
+  function populateFilters(obras) {
+    const municipioFilter = document.getElementById("municipioFilter");
+    const mesFilter = document.getElementById("mesFilter");
+    const situacaoFilter = document.getElementById("situacaoFilter");
+
+    // Limpa opções existentes (mantendo a primeira)
+    while (municipioFilter.options.length > 1) municipioFilter.remove(1);
+    while (mesFilter.options.length > 1) mesFilter.remove(1);
+    while (situacaoFilter.options.length > 1) situacaoFilter.remove(1);
+
+    // Coleta municípios, meses e situações únicas
+    const municipios = new Set();
+    const meses = new Set();
+    const situacoes = new Set();
+
+    obras.forEach((obra) => {
+      if (obra.MUNICÍPIO && obra.MUNICÍPIO !== "#N/A") {
+        municipios.add(obra.MUNICÍPIO);
+      }
+      if (obra.DATA) {
+        meses.add(obra.DATA);
+      }
+      if (obra.SITUAÇÃO && obra.SITUAÇÃO !== "#N/A") {
+        situacoes.add(obra.SITUAÇÃO);
+      }
+    });
+
+    // Adiciona municípios ao filtro
+    municipios.forEach((municipio) => {
+      const option = document.createElement("option");
+      option.value = municipio;
+      option.textContent = municipio;
+      municipioFilter.appendChild(option);
+    });
+
+    // Adiciona meses ao filtro
+    meses.forEach((mes) => {
+      const option = document.createElement("option");
+      option.value = mes;
+      option.textContent = mes;
+      mesFilter.appendChild(option);
+    });
+
+    // Adiciona situações ao filtro
+    situacoes.forEach((situacao) => {
+      // Verifica se a situação já não está no filtro
+      const exists = Array.from(situacaoFilter.options).some(
+        (option) => option.value === situacao
+      );
+      if (!exists) {
+        const option = document.createElement("option");
+        option.value = situacao;
+        option.textContent = situacao;
+        situacaoFilter.appendChild(option);
+      }
+    });
+  }
+
+  function addMarkersToMap(obras) {
+    // Limpa marcadores existentes
+    clearAllMarkers();
+
+    obras.forEach((obra, index) => {
+      try {
+        const lat = parseFloat(obra.LATITUDE.toString().replace(",", "."));
+        const lng = parseFloat(obra.LONGITUDE.toString().replace(",", "."));
+
+        const marker = new google.maps.Marker({
+          position: { lat, lng },
+          map: map,
+          title: `${obra.TÍTULO || "Sem título"} (${
+            obra.MUNICÍPIO || "Município desconhecido"
+          }) - B. da Obra: ${obra["B DA OBRA"] || "Não informado"}`,
+          icon: getMarkerIcon(obra.SITUAÇÃO),
+          label: {
+            text: (index + 1).toString(),
+            color: "white",
+            fontWeight: "bold",
+          },
+        });
+
+        // Armazena dados da obra no marcador
+        marker.obraData = obra;
+
+        // Adiciona evento de clique
+        marker.addListener("click", () => selectMarker(marker));
+
+        // Adiciona evento de mouseover
+        marker.addListener("mouseover", () => {
+          infoWindow.setContent(createInfoWindowContent(obra));
+          infoWindow.open(map, marker);
+        });
+
+        // Adiciona evento de mouseout
+        marker.addListener("mouseout", () => {
+          infoWindow.close();
+        });
+
+        markers.push(marker);
+      } catch (e) {
+        console.warn("Erro ao criar marcador para obra:", obra["B DA OBRA"], e);
+      }
+    });
+
+    allMarkers = [...markers];
+    updateDebugInfo();
+  }
+
+  function getMarkerIcon(situacao) {
+    if (!situacao || situacao === "#N/A") {
+      return {
+        url: "https://maps.google.com/mapfiles/ms/icons/blue.png",
+        scaledSize: new google.maps.Size(32, 32),
+      };
+    }
+
+    situacao = situacao.toUpperCase();
+
+    if (situacao.includes("ENERGIZADA")) {
+      return {
+        url: "https://maps.google.com/mapfiles/ms/icons/green.png",
+        scaledSize: new google.maps.Size(32, 32),
+      };
+    } else if (
+      situacao.includes("CANCELADA") ||
+      situacao.includes("CANCELAR")
+    ) {
+      return {
+        url: "https://maps.google.com/mapfiles/ms/icons/red.png",
+        scaledSize: new google.maps.Size(32, 32),
+      };
+    } else if (situacao.includes("PROVAVEL CANCELAMENTO")) {
+      return {
+        url: "https://maps.google.com/mapfiles/ms/icons/orange.png",
+        scaledSize: new google.maps.Size(32, 32),
+      };
+    } else {
+      return {
+        url: "https://maps.google.com/mapfiles/ms/icons/blue.png",
+        scaledSize: new google.maps.Size(32, 32),
+      };
+    }
+  }
+
+  function createInfoWindowContent(obra) {
+    return `
+                <div class="marker-info">
+                    <h4>${obra.TÍTULO || "Sem título"}</h4>
+                    <p><strong>Município:</strong> ${
+                      obra.MUNICÍPIO || "Não informado"
+                    }</p>
+                    <p><strong>B. da Obra:</strong> ${
+                      obra["B DA OBRA"] || "Não informado"
+                    }</p>
+                    <p><strong>Situação:</strong> ${
+                      obra.SITUAÇÃO || "Não informada"
+                    }</p>
+                    <p><strong>Mês:</strong> ${obra.DATA || "Não informado"}</p>
+                    <p><strong>Postes:</strong> ${
+                      obra["POSTE INSTALADOS"] || "0"
+                    } de ${obra["POSTE PREVISTO"] || "0"}</p>
+                    <p><strong>Equipe:</strong> ${
+                      obra.EQUIPE || "Não informada"
+                    }</p>
+                    <p><strong>Coordenadas:</strong> ${parseFloat(
+                      obra.LATITUDE.toString().replace(",", ".")
+                    ).toFixed(6)}, 
+                                                  ${parseFloat(
+                                                    obra.LONGITUDE.toString().replace(
+                                                      ",",
+                                                      "."
+                                                    )
+                                                  ).toFixed(6)}</p>
+                </div>
+            `;
+  }
+
+  function selectMarker(marker) {
+    const index = selectedMarkers.findIndex((m) => m === marker);
+
+    if (index === -1) {
+      // Adiciona à seleção (máximo 2)
+      if (selectedMarkers.length < 2) {
+        selectedMarkers.push(marker);
+        marker.setIcon(
+          "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+        );
+      } else {
+        // Remove o mais antigo e adiciona o novo
+        resetMarkerIcon(selectedMarkers[0]);
+        selectedMarkers.shift();
+        selectedMarkers.push(marker);
+        marker.setIcon(
+          "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+        );
+      }
+    } else {
+      // Remove da seleção
+      selectedMarkers.splice(index, 1);
+      resetMarkerIcon(marker);
+    }
+
+    updateSelectedPointsDisplay();
+
+    // Calcula distância se tiver 2 selecionados
+    if (selectedMarkers.length === 2) {
+      calculateRoadDistance();
+    } else {
+      clearRoute();
+    }
+  }
+
+  function resetMarkerIcon(marker) {
+    marker.setIcon(getMarkerIcon(marker.obraData?.SITUAÇÃO));
+  }
+
+  function updateSelectedPointsDisplay() {
+    const pointsDiv = document.getElementById("selectedPoints");
+
+    if (selectedMarkers.length === 0) {
+      pointsDiv.innerHTML = "Nenhuma obra selecionada";
+      document.getElementById("distanceResult").innerHTML = "";
+    } else {
+      pointsDiv.innerHTML = selectedMarkers
+        .map((marker) => {
+          const obra = marker.obraData;
+          return `• ${obra.TÍTULO || "Sem título"} (${
+            obra.MUNICÍPIO || "Município desconhecido"
+          }) - B. da Obra: ${obra["B DA OBRA"] || "Não informado"}`;
+        })
+        .join("<br>");
+
+      if (selectedMarkers.length === 1) {
+        document.getElementById("distanceResult").innerHTML =
+          "Selecione mais uma obra para calcular a distância";
+      }
+    }
+  }
+
+  function calculateRoadDistance() {
+    if (selectedMarkers.length !== 2) return;
+
+    const origin = selectedMarkers[0].getPosition();
+    const destination = selectedMarkers[1].getPosition();
+
+    document.getElementById("loading").style.display = "block";
+
+    directionsService.route(
+      {
+        origin: origin,
+        destination: destination,
+        travelMode: "DRIVING",
+        unitSystem: google.maps.UnitSystem.METRIC,
+      },
+      (response, status) => {
+        document.getElementById("loading").style.display = "none";
+
+        if (status === "OK") {
+          directionsRenderer.setDirections(response);
+
+          const route = response.routes[0];
+          let distance = 0;
+          let duration = 0;
+
+          for (let leg of route.legs) {
+            distance += leg.distance.value;
+            duration += leg.duration.value;
+          }
+
+          document.getElementById("distanceResult").innerHTML = `
+                        Distância rodoviária: ${(distance / 1000).toFixed(
+                          2
+                        )} km<br>
+                        Tempo estimado: ${(duration / 3600).toFixed(1)} horas
+                    `;
+        } else {
+          document.getElementById("distanceResult").innerHTML = `
+                        Não foi possível calcular a rota: ${status}
+                    `;
+        }
+      }
+    );
+  }
+
+  function clearRoute() {
+    directionsRenderer.setDirections({ routes: [] });
+    document.getElementById("distanceResult").innerHTML = "";
+  }
+
+  function setupEventListeners() {
+    // Filtros
+    document
+      .getElementById("applyFilter")
+      .addEventListener("click", applyFilters);
+    document
+      .getElementById("clearFilter")
+      .addEventListener("click", clearFilters);
+
+    // Raio
+    document
+      .getElementById("applyRadius")
+      .addEventListener("click", applyRadiusFilter);
+    document
+      .getElementById("clearRadius")
+      .addEventListener("click", clearRadiusFilter);
+
+    // Pesquisa por B da Obra
+    document
+      .getElementById("searchObra")
+      .addEventListener("click", searchByObra);
+    document
+      .getElementById("clearSearch")
+      .addEventListener("click", clearSearch);
+
+    // Permitir pesquisa ao pressionar Enter
+    document
+      .getElementById("obraSearch")
+      .addEventListener("keypress", function (e) {
+        if (e.key === "Enter") {
+          searchByObra();
+        }
+      });
+
+    // Calcular rota por B da Obra
+    document
+      .getElementById("calculateRoute")
+      .addEventListener("click", calculateRouteByObra);
+    document
+      .getElementById("clearRoute")
+      .addEventListener("click", clearRouteByObra);
+  }
+
+  function applyFilters() {
+    const municipio = document.getElementById("municipioFilter").value;
+    const mes = document.getElementById("mesFilter").value;
+    const situacao = document.getElementById("situacaoFilter").value;
+
+    let totalPrevistos = 0;
+    let totalImplantados = 0;
+    let obrasFiltradas = 0;
+
+    markers.forEach((marker) => {
+      const obra = marker.obraData;
+      let shouldShow = true;
+
+      // Aplica filtro de município
+      if (municipio && obra.MUNICÍPIO !== municipio) {
+        shouldShow = false;
+      }
+
+      // Aplica filtro de mês
+      if (mes && obra.DATA !== mes) {
+        shouldShow = false;
+      }
+
+      // Aplica filtro de situação
+      if (situacao) {
+        if (
+          !obra.SITUAÇÃO ||
+          !obra.SITUAÇÃO.toUpperCase().includes(situacao.toUpperCase())
+        ) {
+          shouldShow = false;
+        }
+      }
+
+      marker.setMap(shouldShow ? map : null);
+
+      // Soma os postes das obras visíveis
+      if (shouldShow) {
+        obrasFiltradas++;
+        totalPrevistos += parseFloat(obra["POSTE PREVISTO"] || 0);
+        totalImplantados += parseFloat(obra["POSTE INSTALADOS"] || 0);
+      }
+    });
+
+    // Atualiza os totais de postes
+    document.getElementById("total-previstos").textContent = totalPrevistos;
+    document.getElementById("total-implantados").textContent = totalImplantados;
+
+    updateDebugInfo();
+  }
+
+  function clearFilters() {
+    document.getElementById("municipioFilter").value = "";
+    document.getElementById("mesFilter").value = "";
+    document.getElementById("situacaoFilter").value = "";
+
+    let totalPrevistos = 0;
+    let totalImplantados = 0;
+
+    markers.forEach((marker) => {
+      marker.setMap(map);
+      const obra = marker.obraData;
+      totalPrevistos += parseFloat(obra["POSTE PREVISTO"] || 0);
+      totalImplantados += parseFloat(obra["POSTE INSTALADOS"] || 0);
+    });
+
+    // Atualiza os totais de postes
+    document.getElementById("total-previstos").textContent = totalPrevistos;
+    document.getElementById("total-implantados").textContent = totalImplantados;
+
+    updateDebugInfo();
+  }
+
+  function applyRadiusFilter() {
+    if (selectedMarkers.length !== 1) {
+      alert("Selecione exatamente 1 obra como centro do raio");
+      return;
+    }
+
+    const radiusKm = parseFloat(
+      document.getElementById("radiusDistance").value
+    );
+
+    if (isNaN(radiusKm) || radiusKm <= 0) {
+      alert("Digite um valor válido para o raio (em km)");
+      return;
+    }
+
+    const center = selectedMarkers[0].getPosition();
+
+    // Remove filtro anterior
+    clearRadiusFilter(true);
+
+    // Cria marcador central
+    centerMarker = new google.maps.Marker({
+      position: center,
+      map: map,
+      icon: {
+        url: "http://maps.google.com/mapfiles/ms/icons/green-dot.png",
+        scaledSize: new google.maps.Size(40, 40),
+      },
+      title: "Centro do Raio",
+    });
+
+    // Cria círculo do raio
+    radiusCircle = new google.maps.Circle({
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: "#FF0000",
+      fillOpacity: 0.2,
+      map: map,
+      center: center,
+      radius: radiusKm * 1000, // Converte km para metros
+    });
+
+    // Filtra marcadores dentro do raio
+    let count = 0;
+    let totalPrevistos = 0;
+    let totalImplantados = 0;
+
+    allMarkers.forEach((marker) => {
+      if (marker === selectedMarkers[0]) return;
+
+      const distance =
+        google.maps.geometry.spherical.computeDistanceBetween(
+          center,
+          marker.getPosition()
+        ) / 1000;
+
+      if (distance <= radiusKm) {
+        marker.setMap(map);
+        count++;
+
+        // Soma os postes das obras dentro do raio
+        const obra = marker.obraData;
+        totalPrevistos += parseFloat(obra["POSTE PREVISTO"] || 0);
+        totalImplantados += parseFloat(obra["POSTE INSTALADOS"] || 0);
+      } else {
+        marker.setMap(null);
+      }
+    });
+
+    // Atualiza os totais de postes
+    document.getElementById("total-previstos").textContent = totalPrevistos;
+    document.getElementById("total-implantados").textContent = totalImplantados;
+
+    // Atualiza informação do raio
+    document.getElementById("radiusInfo").style.display = "block";
+    document.getElementById("radiusInfo").innerHTML = `
+                Mostrando ${count} obras dentro de ${radiusKm} km do centro
+            `;
+
+    updateDebugInfo();
+  }
+
+  function clearRadiusFilter(preserveSelection = false) {
+    if (radiusCircle) {
+      radiusCircle.setMap(null);
+      radiusCircle = null;
+    }
+
+    if (centerMarker) {
+      centerMarker.setMap(null);
+      centerMarker = null;
+    }
+
+    document.getElementById("radiusInfo").style.display = "none";
+
+    if (!preserveSelection && selectedMarkers.length === 1) {
+      resetMarkerIcon(selectedMarkers[0]);
+      selectedMarkers = [];
+      updateSelectedPointsDisplay();
+    }
+
+    // Mostra todos os marcadores novamente
+    let totalPrevistos = 0;
+    let totalImplantados = 0;
+
+    allMarkers.forEach((marker) => {
+      marker.setMap(map);
+      const obra = marker.obraData;
+      totalPrevistos += parseFloat(obra["POSTE PREVISTO"] || 0);
+      totalImplantados += parseFloat(obra["POSTE INSTALADOS"] || 0);
+    });
+
+    // Atualiza os totais de postes
+    document.getElementById("total-previstos").textContent = totalPrevistos;
+    document.getElementById("total-implantados").textContent = totalImplantados;
+
+    updateDebugInfo();
+  }
+
+  function searchByObra() {
+    const searchTerm = document
+      .getElementById("obraSearch")
+      .value.trim()
+      .toUpperCase();
+    if (!searchTerm) return;
+
+    // Limpa resultados anteriores
+    const resultsContainer = document.getElementById("searchResults");
+    resultsContainer.innerHTML = "";
+
+    // Limpa a seleção anterior
+    if (lastHighlightedMarker) {
+      resetMarkerIcon(lastHighlightedMarker);
+      lastHighlightedMarker = null;
+    }
+
+    // Procura pelo B da Obra ou título
+    const foundMarkers = allMarkers.filter((marker) => {
+      const obraB = marker.obraData["B DA OBRA"]
+        ? marker.obraData["B DA OBRA"].toString().toUpperCase()
+        : "";
+      const obraTitulo = marker.obraData.TÍTULO
+        ? marker.obraData.TÍTULO.toUpperCase()
+        : "";
+      return obraB.includes(searchTerm) || obraTitulo.includes(searchTerm);
+    });
+
+    if (foundMarkers.length > 0) {
+      // Mostra os resultados
+      foundMarkers.forEach((marker) => {
+        const obra = marker.obraData;
+        const resultItem = document.createElement("div");
+        resultItem.className = "search-result-item";
+        resultItem.innerHTML = `
+              <strong>${obra.TÍTULO || "Sem título"}</strong><br>
+              B. da Obra: ${obra["B DA OBRA"] || "Não informado"}<br>
+              Município: ${obra.MUNICÍPIO || "Não informado"}
+            `;
+
+        resultItem.addEventListener("click", () => {
+          // Centraliza o mapa no marcador
+          map.setCenter(marker.getPosition());
+          map.setZoom(12);
+
+          // Destaca o marcador
+          if (lastHighlightedMarker) {
+            resetMarkerIcon(lastHighlightedMarker);
+          }
+          marker.setIcon(
+            "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+          );
+          lastHighlightedMarker = marker;
+
+          // Abre o infoWindow
+          infoWindow.setContent(createInfoWindowContent(obra));
+          infoWindow.open(map, marker);
+        });
+
+        resultsContainer.appendChild(resultItem);
+      });
+    } else {
+      resultsContainer.innerHTML = "Nenhuma obra encontrada";
+    }
+  }
+
+  function clearSearch() {
+    document.getElementById("obraSearch").value = "";
+    document.getElementById("searchResults").innerHTML = "";
+
+    if (lastHighlightedMarker) {
+      resetMarkerIcon(lastHighlightedMarker);
+      lastHighlightedMarker = null;
+    }
+
+    infoWindow.close();
+  }
+
+  function calculateRouteByObra() {
+    const originB = document.getElementById("originObra").value.trim();
+    const destinationB = document
+      .getElementById("destinationObra")
+      .value.trim();
+
+    if (!originB || !destinationB) {
+      document.getElementById("routeResult").innerHTML =
+        "Preencha ambos os campos de B da Obra";
+      return;
+    }
+
+    // Encontra os marcadores pelos B da Obra
+    const originMarker = allMarkers.find(
+      (marker) =>
+        marker.obraData["B DA OBRA"] &&
+        marker.obraData["B DA OBRA"].toString().trim() === originB
+    );
+
+    const destinationMarker = allMarkers.find(
+      (marker) =>
+        marker.obraData["B DA OBRA"] &&
+        marker.obraData["B DA OBRA"].toString().trim() === destinationB
+    );
+
+    if (!originMarker || !destinationMarker) {
+      document.getElementById("routeResult").innerHTML =
+        (!originMarker ? "Origem não encontrada<br>" : "") +
+        (!destinationMarker ? "Destino não encontrado" : "");
+      return;
+    }
+
+    // Limpa seleções anteriores
+    selectedMarkers.forEach((marker) => resetMarkerIcon(marker));
+    selectedMarkers = [];
+
+    // Seleciona os novos marcadores
+    selectedMarkers = [originMarker, destinationMarker];
+    originMarker.setIcon(
+      "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+    );
+    destinationMarker.setIcon(
+      "http://maps.google.com/mapfiles/ms/icons/yellow-dot.png"
+    );
+
+    updateSelectedPointsDisplay();
+    calculateRoadDistance();
+
+    // Centraliza o mapa na rota
+    const bounds = new google.maps.LatLngBounds();
+    bounds.extend(originMarker.getPosition());
+    bounds.extend(destinationMarker.getPosition());
+    map.fitBounds(bounds);
+
+    document.getElementById("routeResult").innerHTML = `
+          Rota calculada entre:<br>
+          - ${originMarker.obraData.TÍTULO || "Sem título"} (${originB})<br>
+          - ${
+            destinationMarker.obraData.TÍTULO || "Sem título"
+          } (${destinationB})
+        `;
+  }
+
+  function clearRouteByObra() {
+    document.getElementById("originObra").value = "";
+    document.getElementById("destinationObra").value = "";
+    document.getElementById("routeResult").innerHTML = "";
+
+    // Limpa a rota mas mantém os marcadores selecionados
+    clearRoute();
+  }
+
+  function clearAllMarkers() {
+    markers.forEach((marker) => marker.setMap(null));
+    markers = [];
+    selectedMarkers = [];
+    updateSelectedPointsDisplay();
+  }
+
+  function updateDebugInfo() {
+    const visibleMarkers = markers.filter((m) => m.getMap() !== null).length;
+    document.getElementById("debugInfo").innerHTML = `
+                Total de obras: ${obrasJson.length}<br>
+                Obras com coordenadas válidas: ${allMarkers.length}<br>
+                Marcadores visíveis: ${visibleMarkers}/${markers.length}<br>
+                Obras selecionadas: ${selectedMarkers.length}
+            `;
+  }
+
+  // Inicializa o mapa quando a API estiver carregada
+  window.onload = initMap;
+</script>
